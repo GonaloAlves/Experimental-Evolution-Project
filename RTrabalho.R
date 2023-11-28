@@ -4,22 +4,25 @@ library(lme4)
 library(lmerTest)
 library(ggplot2)
 library(fitdistrplus)
-library(emmeans)
 library(glmmTMB)
-library(dplyr)
 
+
+#import the used excel tables for Fecundity assay
 
 fecdata = read.table("Total-Fec-Mean.csv", header = T, sep = ";" ,stringsAsFactors = TRUE, dec = ",", na.strings = "NA")
 fecdata
+
+#summary of the data imported
 summary(fecdata)
 str(fecdata)
 
-
+#change the order of the factors for better vizualization on statistical analysis
 fecdata$Selection2<-factor(fecdata$Selection, levels=c("PT", "Cg-PT"))
 fecdata
 
 fecdata$EnvDensity2<-factor(fecdata$EnvDensity, levels=c("L", "H"))
 fecdata
+
 
 lm_fec = lmer(MeanOfEggs_F~Selection*EnvDensity+(1|AP)+(1|AP:Selection)+(1|AP:EnvDensity)+(1|AP:Selection:EnvDensity), data = fecdata)
 summary(lm_fec)
@@ -27,23 +30,19 @@ anova(lm_fec)
 
 
 #distribution of data
-layout(matrix(c(1,2,3,4),2,2, byrow = TRUE))
-layout.show(4)
+#layout(matrix(c(1,2,3,4),2,2, byrow = TRUE))
+#layout.show(4)
 
-hist(fecdata$MeanOfEggsF_4) #Towards0
-hist(fecdata$MeanOfEggsF_5) #Normal
-hist(fecdata$MeanOfEggsF_6) #NotNormal
-hist(fecdata$MeanOfEggsF_9) #KindaNormal
+hist(fecdata$MeanOfEggsF_4) 
+hist(fecdata$MeanOfEggsF_5) 
+hist(fecdata$MeanOfEggsF_6) 
+hist(fecdata$MeanOfEggsF_9) 
 
 hist(fecdata$MeanOfEggs_F)
 
 
 #distribution of mean vs selection in different days
 
-layout(matrix(c(1,2,3,4),2,2, byrow = TRUE))
-layout.show(4)
-
-#it does not differ much from each selection in different days
 boxplot(fecdata$MeanOfEggsF_4 ~ fecdata$Selection)
 boxplot(fecdata$MeanOfEggsF_5 ~ fecdata$Selection)
 boxplot(fecdata$MeanOfEggsF_6 ~ fecdata$Selection)
@@ -52,7 +51,7 @@ boxplot(fecdata$MeanOfEggsF_9 ~ fecdata$Selection)
 boxplot(fecdata$MeanOfEggs_F ~ fecdata$Selection)
 
 
-#distribution of mean vs AP in different days, day 4 looks homogenion
+#distribution of mean vs AP in different days
 
 boxplot(fecdata$MeanOfEggsF_4 ~ fecdata$AP)
 boxplot(fecdata$MeanOfEggsF_5 ~ fecdata$AP)
@@ -62,7 +61,7 @@ boxplot(fecdata$MeanOfEggsF_9 ~ fecdata$AP)
 boxplot(fecdata$MeanOfEggs_F ~ fecdata$AP*fecdata$Selection*fecdata$EnvDensity)
 
 
-#distribution of mean vs EnvDensity in different days, day 4 looks homogenion
+#distribution of mean vs EnvDensity in different days
 
 boxplot(fecdata$MeanOfEggsF_4 ~ fecdata$Rack)
 boxplot(fecdata$MeanOfEggsF_5 ~ fecdata$Rack)
@@ -72,7 +71,7 @@ boxplot(fecdata$MeanOfEggsF_9 ~ fecdata$Rack)
 boxplot(fecdata$MeanOfEggs_F ~ fecdata$Rack)
 
 
-#distribution of mean vs AP in different days, day 4 looks homogenion
+#distribution of mean vs AP in different days
 
 boxplot(fecdata$MeanOfEggsF_4 ~ fecdata$EnvDensity)
 boxplot(fecdata$MeanOfEggsF_5 ~ fecdata$EnvDensity)
@@ -82,7 +81,7 @@ boxplot(fecdata$MeanOfEggsF_9 ~ fecdata$EnvDensity)
 boxplot(fecdata$MeanOfEggs_F+fecdata$MeanOfEggsF_9 ~ fecdata$EnvDensity)
 
 
-#distribution of mean vs vial in different days, day 4 looks homogenion
+#distribution of mean vs vial in different days
 
 boxplot(fecdata$MeanOfEggsF_4 ~ fecdata$vial)
 boxplot(fecdata$MeanOfEggsF_5 ~ fecdata$vial)
@@ -92,27 +91,37 @@ boxplot(fecdata$MeanOfEggsF_9 ~ fecdata$vial)
 boxplot(fecdata$MeanOfEggs_F ~ fecdata$vial)
 
 
+#model for our first assay
+lm_fec = lmer(MeanOfEggs_F~Selection*EnvDensity+(1|AP)+(1|AP:Selection)+(1|AP:EnvDensity)+(1|AP:Selection:EnvDensity), data = fecdata)
+summary(lm_fec)
+anova(lm_fec)
+
+
+#main plots for our assay
 plot(fecdata$Selection, fecdata$MeanOfEggs_F, xlab = "Selection", ylab = "Nr of eggs per female", main = "Nr of eggs vs selection and Density")
 abline(coef(lm_fec), col = "green")
 
 boxplot(fecdata$MeanOfEggs_F ~ fecdata$Selection*fecdata$EnvDensity, xlab = "Selection vs Density", ylab = "Nr of eggs per female")
 
 
-#Matings_time
+#Import our tables for Matings assay
 
 mattimedata = read.table("Mating_times.csv", header = T, sep = ";" ,stringsAsFactors = TRUE, dec = ",")
 mattimedata
+
+#summary of the data
 str(mattimedata)
 summary(mattimedata)
 
-#Matings
-
 matdata = read.table("Matings.csv", header = T, sep = ";" ,stringsAsFactors = TRUE, dec = ",")
 matdata
+
+#summary of the data
 str(matdata)
 summary(matdata)
 
 
+#change the order o the factors for better vizualization of the statistical analysis
 matdata$Selection2<-factor(matdata$Selection, levels=c("PT", "Cg-PT"))
 matdata
 mattimedata$Selection2<-factor(mattimedata$Selection, levels=c("PT", "Cg-PT"))
@@ -135,18 +144,18 @@ boxplot(matdata$Courts ~ matdata$Selection)
 
 boxplot(mattimedata$MATING_DURATION ~ mattimedata$Selection)
 
-
-#modelos (matings)
-
 descdist(matdata$Matings, boot = 100, discrete = TRUE)
 descdist(matdata$Courts, boot = 100, discrete = TRUE)
 
 
+#models (matings)
+
+#poisson
 glm_matings = glmmTMB(Matings ~ Selection2 + (1|AP)+ (1|AP:Selection2), data = matdata, family = "poisson")
 
+#negatic binominal
 glm_matings_nb <- glmmTMB(Matings ~ Selection + (1|AP)+ (1|AP:Selection), data = matdata,family=nbinom2, ziformula = ~1)
 
-lme_matings = lmer(MATING_DURATION ~ Selection2 + (1|AP)+ (1|AP:Selection), data = mattimedata)
 
 summary(glm_matings_nb)
 summary(glm_matings)
@@ -157,12 +166,18 @@ AIC(glm_matings,glm_matings_nb, k=2) # poisson is better
 
 summary(glm_matings)
 
+#normal linear model
+lme_matings = lmer(MATING_DURATION ~ Selection2 + (1|AP)+ (1|AP:Selection), data = mattimedata)
 summary(lme_matings)
+
+
 #### modelos (Courts)
 
+#poisson
 glm_courts = glmmTMB(Courts ~ Selection + (1|AP)+ (1|AP:Selection), data = matdata, family = "poisson")
 
-glm_courts_nb <- glmmTMB(Courts ~ Selection + (1|AP)+ (1|AP:Selection), data = matdata,family=nbinom1, ziformula = ~1)
+#negative binominal
+glm_courts_nb <- glmmTMB(Courts ~ Selection + (1|AP)+ (1|AP:Selection), data = matdata, family=nbinom1, ziformula = ~1)
 
 summary(glm_courts_nb)
 summary(glm_courts)
@@ -182,34 +197,18 @@ boxplot(mattimedata$MATING_DURATION ~ mattimedata$Selection)
 
 descdist(mattimedata$MATING_DURATION, boot = 100, discrete = TRUE)
 
-#modelos
 
+#organizing factors
 mattimedata$Selection2<-factor(mattimedata$Selection, levels=c("PT", "Cg-PT"))
 mattimedata
 
+#models for mating duration (normal linear regression (used)) 
 
 duration_matings = lmer(MATING_DURATION~Selection2 + (1|AP) + (1|Cage) + (1|AP:Selection2) , data = mattimedata)
 
 summary(duration_matings)
 
 anova(duration_matings)
-
-
-
-#plots for present
-
-#Fecundity
-
-#EXEMPLE
-
-linef4 = fecdata |>
-  summarize(mean_f4 = mean(MeanOfEggsF_4))
-linef4
-
-ggplot(data = fecdata, aes(x = MeanOfEggsF_4, y = after_stat(density))) +
-  geom_histogram() +
-  geom_vline(aes(xintercept = mean_f4), linef4, color = "red", linewidth = 1) +
-  geom_density(color = "green", linewidth = 1)
 
 
 #histogramas, dispersão de dados 
@@ -346,6 +345,7 @@ ggplot(fecdata, aes(x = EnvDensity, y = MeanOfEggs_F, fill = Selection)) +
   ylab("Number of Eggs per female")+
   xlab("Environment") +
   ggtitle("Data dispersion")
+
 #Matings
 
 #histogramas, dispersão dos dados
@@ -379,7 +379,7 @@ ggplot(data = matdata, aes(x = Courts, y = after_stat(density), fill = Selection
 #boxplots para dados de mating duration
 
 
-ggplot(mattimedata, aes(x = Selection, y = MATING_DURATION, fill = AP)) +
+ggplot(mattimedata, aes(x = Selection, y = MATING_DURATION, fill = Selection)) +
   geom_boxplot() +
  # facet_wrap(~ AP)+
   theme(legend.position = "right", axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10),
@@ -391,6 +391,7 @@ ggplot(mattimedata, aes(x = Selection, y = MATING_DURATION, fill = AP)) +
 
 
 #####
+#adictional test of corting data 
 
 courtdata = read.table("Courtstime.csv", header = T, sep = ";" ,stringsAsFactors = TRUE, dec = ",")
 courtdata
@@ -405,4 +406,16 @@ ggplot(courtdata, aes(x = Selection, y = COURTSHIP_BEGINNING, fill = AP)) +
   ylab("Duraction of a mating (seconds)")+
   xlab("Selection Environment") +
   ggtitle("Data dispersion")
+
+
+#how to citate and pick references form libraries
+packageVersion('fitdistrplus')
+
+citation("glmmTMB")
+
+citation()
+
+RStudio.Version()
+
+R.version
 
